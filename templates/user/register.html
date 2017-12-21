@@ -1,0 +1,133 @@
+{% extends "skeleton.html" %}
+
+{% block style %}
+<script>
+	var emails = [
+	{% for row in emails %}
+	"{{row.email}}",
+	{% endfor %}
+	]
+</script>
+{% endblock %}
+
+{% block content %}
+
+{% include "header.html" %}
+<div style="clear:both"></div>
+<div id="body-container" style='background:#b7410f;'>
+  <div class="wrapper">
+    <div class="main-content">
+    	<div class='col-md-6 col-md-offset-3'><div class='col-sm-12'><div style='background:#ececec;margin-top: 60px;border-radius:4px;height: 470px;' >
+    	<form action="/student/userregister" method="post" class='col-sm-12 registerForm' onsubmit="return validateForm()">
+    		<div style='position: absolute;top: -60px;left: 50%;width:0px;'>
+    			<div class="glyphicon glyphicon-pencil" style='font-size: 4em;background: #ffd200;color: white;padding: 30px;
+    				border-radius: 200px;position: absolute;left: -60px;'></div>
+    		</div>
+    		<br><br>
+    		<div class='col-sm-12'><h2 style='text-align:center;'>Register</h2></div>
+			<div class='col-sm-12'><input name='email' type="text" placeholder="Email" value='{{email}}'></div>
+			<div class='col-sm-12'><input name='password' type="password" placeholder="Password"></div>
+			<div class='col-sm-12'><input name='repassword' type="password" placeholder="Confirm Password"></div>
+			
+			<!--<div class="btn-group col-sm-12" style='margin:20px 0px;'>
+				<div style='display:none;'>
+					<input type="radio" name="type" value="User"  checked='checked'/>
+					<input type="radio" name="type" value="Parent"/>
+				</div>
+				<button type="button" onclick='chooseButton(this, 0)' class="btn active col-sm-6">User</button>
+				<button type="button" onclick='chooseButton(this, 1)' class="btn col-sm-6">Parent</button>
+			</div>-->
+			<input type="hidden" name="type" value="User"/>
+
+			{% csrf_token %}
+			<div class='col-sm-12'><input type="submit" value="REGISTER" class="btn blue" style='padding:10px;margin:5px 0px;'></div>
+			
+			<div class='col-sm-12'><div style='text-align:center;'>Already a user? <a href='/student/login' style='color: #22a7f2;'>Login</a></div></div>
+		</form>
+		<div style='clear:both;'><br><br></div>
+		</div></div></div>
+		
+		<div style='clear:both;'><br><br></div>
+	</div>
+  </div>
+</div>
+{% include "footer.html" %}
+
+{% endblock %}
+
+{% block script %}
+<script>
+	function validateForm() {
+		$('.errorCode').remove();
+		var email = $('.registerForm input[name=email]').val();
+		/*var name = $('.registerForm input[name=username]').val();*/
+		
+		if (!IsEmail(email)){
+			$('.registerForm input[name=email]').parent().prepend('<div class="errorCode" style="color:red;">Must be a valid email!</div>')
+			return false;
+		}
+		if (!checkEmail($('.registerForm input[name=email]'))){
+			return false;
+		}
+		if (!checkPassword($('.registerForm input[name=password]'))){
+			return false;
+		}
+		if ($('.registerForm input[name=password]').val() != $('.registerForm input[name=repassword]').val()){
+			$('.registerForm input[name=password]').parent().prepend('<div class="errorCode" style="color:red;">Passwords must match.</div>')
+			return false;
+		}
+		/*
+		if (name == ''){
+			$('.registerForm input[name=username]').parent().prepend('<div class="errorCode" style="color:red;">Please enter a username</div>')
+			return false;
+		}
+		*/
+	}
+	
+	function IsEmail(email) {
+		var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+		return regex.test(email);
+	}
+	
+	function checkEmail(thisObject){
+		$(thisObject).parent().children('.errorCode').remove();
+		
+		var name = $(thisObject).val();
+		if ($.inArray(name, emails) > -1){
+			$(thisObject).parent().prepend('<div class="errorCode" style="color:red;">Email is taken.</div>');
+			return false;
+		}
+		return true;
+	}
+	function checkPassword(thisObject){
+		$(thisObject).parent().children('.errorCode').remove();
+		
+		var password = $(thisObject).val();
+		if (password.length < 8 || !IsAlph(password)){
+			$(thisObject).parent().prepend('<div class="errorCode" style="color:red;">Password \
+					must be a minimum of 8 characters and contain only letters and numbers.</div>');
+			return false;
+		}
+		else if (password.search(/\d/) == -1 || password.search(/[a-zA-Z]/) == -1) {
+			$(thisObject).parent().prepend('<div class="errorCode" style="color:red;">Password \
+			must have at least one letter and one number.</div>');
+			return false;
+		}
+		return true;
+	}
+	function IsAlph(password){
+		var regex = /^[a-zA-Z0-9]+$/;
+		return regex.test(password);
+	}
+	
+	function chooseButton(thisObject, i){
+	if(!$(thisObject).hasClass('notBtn')){
+		$(thisObject).parent().children('.btn').removeClass('active');
+		$(thisObject).addClass('active');
+		
+		$(thisObject).parent().children('input[type=radio]').eq(i).prop("checked", true);
+	}
+}
+</script>
+{% endblock %}
+

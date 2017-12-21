@@ -1,0 +1,3 @@
+django_extensions==1.9.8
+sorl-thumbnail==12.4.1
+Pillow=4.3.0
